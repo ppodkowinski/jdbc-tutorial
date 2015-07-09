@@ -7,10 +7,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
+import javax.sql.DataSource;
+
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import com.acme.order.pizza.PizzaOrder;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +30,10 @@ public class JdbcOrderRepository implements OrderRepository {
 	private final String user = "dbuser";
 
 	private final String password = "dbpass";
+	
+	@Autowired
+	private DataSource dataSource;
+	
 
 	@Override
 	public String save(PizzaOrder order) {		
@@ -34,13 +43,15 @@ public class JdbcOrderRepository implements OrderRepository {
 
 	@Override
 	public void rollback() {
+		
+		
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public PizzaOrder get(String pizzaOrderId) {
-		try(Connection conn = DriverManager.getConnection(url, user, password)){
+		try(Connection conn = dataSource.getConnection()){
 			try(Statement stmt = conn.createStatement();
 				ResultSet rs= stmt.executeQuery("Select * from order_t where id = 1"))
 				{
